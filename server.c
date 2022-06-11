@@ -9,6 +9,8 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 
+#define MAX_CLIENTS 15
+
 void usage(int argc, char **argv) {
     printf("usage: %s <v4|v6> <server port>\n", argv[0]);
     printf("example: %s v4 51511\n", argv[0]);
@@ -16,9 +18,14 @@ void usage(int argc, char **argv) {
 }
 
 struct client_data {
+    int id;
     int csock;
     struct sockaddr_storage storage;
 };
+
+struct client_data *clients[MAX_CLIENTS];
+int clients_count = 0;
+int next_client_id = 1;
 
 void * client_thread(void *data) {
     struct client_data *cdata = (struct client_data *)data;
@@ -91,9 +98,11 @@ int main(int argc, char **argv) {
         logexit("listen");
     }
 
-    char addrstr[BUFSZ];
-    addrtostr(addr, addrstr, BUFSZ);
-    printf("bound to %s, waiting connections\n", addrstr);
+    char buf[BUFSZ];
+    size_t count;
+
+    addrtostr(addr, buf, BUFSZ);
+    printf("bound to %s, waiting connections\n", buf);
 
     while (1) {
         struct sockaddr_storage cstorage;
@@ -106,14 +115,35 @@ int main(int argc, char **argv) {
         }
 
         struct client_data *cdata = malloc(sizeof(*cdata));
+
         if (!cdata) {
             logexit("malloc");
         }
+
+        cdata->id = next_client_id++;
         cdata->csock = csock;
         memcpy(&(cdata->storage), &cstorage, sizeof(cstorage));
 
         pthread_t tid;
         pthread_create(&tid, NULL, client_thread, cdata);
+
+        printf("[log] Equipment %i added\n", cdata->id);
+
+        sprintf(buf, "New ID: %i\n", cdata->id);
+        count = send(cdata->csock, strtok(buf, "\0"), strlen(buf), 0);
+        if (count != strlen(buf)) {
+            logexit("send");
+        }
+
+        for (int i=0; i<clients_count; i++) {
+            sprintf(buf, "Equipment %i added\n", cdata->id);
+            count = send(clients[i]->csock, strtok(buf, "\0"), strlen(buf), 0);
+            if (count != strlen(buf)) {
+                logexit("send");
+            }
+        }
+
+        clients[clients_count++] = cdata;
     }
 
     exit(EXIT_SUCCESS);
