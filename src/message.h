@@ -6,6 +6,7 @@
 
 #define MAX_PAYLOAD_SIZE 15
 #define ID_BYTE_SIZE 2
+#define MSG_END "\n"
 
 enum msg_id {REQ_ADD, REQ_REM, RES_ADD, RES_LIST, REQ_INF, RES_INF, ERROR, OK};
 

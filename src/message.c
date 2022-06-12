@@ -7,7 +7,7 @@ void encode_msg(char *buf, struct message *msg) {
     index += sprintf(&buf[index], "%02d", msg->payload[i]);
   }
 
-  sprintf(&buf[index], "\n");
+  sprintf(&buf[index], MSG_END);
 }
 
 void decode_msg(char *buf, struct message *msg) {
