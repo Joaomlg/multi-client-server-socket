@@ -139,6 +139,84 @@ void test_decode_msg_with_many_ids_in_payload_should_success_decode_buffer(void)
 
 #pragma endregion
 
+#pragma region get_error_msg_str_tests
+
+void test_get_error_msg_str_tests_with_eqp_not_found_error_code_should_return_right_str(void) {
+  struct message *msg = malloc(sizeof(*msg));
+
+  msg->id = ERROR;
+  msg->payload_size = 1;
+  msg->payload[0] = EQP_NOT_FOUND;
+
+  get_error_msg_str(buf, msg);
+
+  char *expected_str = "Equipment not found";
+
+  TEST_ASSERT_EQUAL_STRING(expected_str, buf);
+}
+
+void test_get_error_msg_str_tests_with_src_eqp_not_found_error_code_should_return_right_str(void) {
+  struct message *msg = malloc(sizeof(*msg));
+
+  msg->id = ERROR;
+  msg->payload_size = 1;
+  msg->payload[0] = SRC_EQP_NOT_FOUND;
+
+  get_error_msg_str(buf, msg);
+
+  char *expected_str = "Source equipment not found";
+
+  TEST_ASSERT_EQUAL_STRING(expected_str, buf);
+}
+
+void test_get_error_msg_str_tests_with_tgt_eqp_not_found_error_code_should_return_right_str(void) {
+  struct message *msg = malloc(sizeof(*msg));
+
+  msg->id = ERROR;
+  msg->payload_size = 1;
+  msg->payload[0] = TGT_EQP_NOT_FOUND;
+
+  get_error_msg_str(buf, msg);
+
+  char *expected_str = "Target equipment not found";
+
+  TEST_ASSERT_EQUAL_STRING(expected_str, buf);
+}
+
+void test_get_error_msg_str_tests_with_eqp_limit_exceeded_error_code_should_return_right_str(void) {
+  struct message *msg = malloc(sizeof(*msg));
+
+  msg->id = ERROR;
+  msg->payload_size = 1;
+  msg->payload[0] = EQP_LIMIT_EXCEEDED;
+
+  get_error_msg_str(buf, msg);
+
+  char *expected_str = "Equipment limit exceeded";
+
+  TEST_ASSERT_EQUAL_STRING(expected_str, buf);
+}
+
+#pragma endregion
+
+#pragma region get_success_msg_str_tests
+
+void test_get_success_msg_str_tests_with_successful_removal_success_code_should_return_right_str(void) {
+  struct message *msg = malloc(sizeof(*msg));
+
+  msg->id = OK;
+  msg->payload_size = 1;
+  msg->payload[0] = SUCCESSFUL_REMOVAL;
+
+  get_success_msg_str(buf, msg);
+
+  char *expected_str = "Successful removal";
+
+  TEST_ASSERT_EQUAL_STRING(expected_str, buf);
+}
+
+#pragma endregion
+
 int main(void) {
   UNITY_BEGIN();
 
@@ -149,5 +227,13 @@ int main(void) {
   RUN_TEST(test_decode_msg_without_payload_should_success_decode_buffer);
   RUN_TEST(test_decode_msg_with_single_id_in_payload_should_success_decode_buffer);
   RUN_TEST(test_decode_msg_with_many_ids_in_payload_should_success_decode_buffer);
+
+  RUN_TEST(test_get_error_msg_str_tests_with_eqp_not_found_error_code_should_return_right_str);
+  RUN_TEST(test_get_error_msg_str_tests_with_src_eqp_not_found_error_code_should_return_right_str);
+  RUN_TEST(test_get_error_msg_str_tests_with_tgt_eqp_not_found_error_code_should_return_right_str);
+  RUN_TEST(test_get_error_msg_str_tests_with_eqp_limit_exceeded_error_code_should_return_right_str);
+
+  RUN_TEST(test_get_success_msg_str_tests_with_successful_removal_success_code_should_return_right_str);
+
   return UNITY_END();
 }

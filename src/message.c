@@ -35,3 +35,36 @@ void decode_msg(char *buf, struct message *msg) {
     msg->payload[i] = atoi(tmp);
   }
 }
+
+void get_error_msg_str(char *buf, struct message *msg) {
+  int error_code = msg->payload[0];
+
+  switch (error_code) {
+    case EQP_NOT_FOUND:
+      sprintf(buf, "Equipment not found");
+      break;
+    case SRC_EQP_NOT_FOUND:
+      sprintf(buf, "Source equipment not found");
+      break;
+    case TGT_EQP_NOT_FOUND:
+      sprintf(buf, "Target equipment not found");
+      break;
+    case EQP_LIMIT_EXCEEDED:
+      sprintf(buf, "Equipment limit exceeded");
+      break;
+    default:
+      sprintf(buf, "Unknown error code: %d", error_code);
+  }
+}
+
+void get_success_msg_str(char *buf, struct message *msg) {
+  int success_code = msg->payload[0];
+
+  switch (success_code) {
+    case SUCCESSFUL_REMOVAL:
+      sprintf(buf, "Successful removal");
+      break;
+    default:
+      sprintf(buf, "Unknown success code: %d", success_code);
+  }
+}

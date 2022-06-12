@@ -32,3 +32,7 @@ struct message {
 void encode_msg(char *buf, struct message *msg);
 
 void decode_msg(char *buf, struct message *msg);
+
+void get_error_msg_str(char *buf, struct message *msg);
+
+void get_success_msg_str(char *buf, struct message *msg);
