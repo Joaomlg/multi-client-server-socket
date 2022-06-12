@@ -2,6 +2,8 @@
 
 #include <stdio.h>
 
+#define MAX_PAYLOAD_SIZE 15
+
 enum msg_id {REQ_ADD, REQ_REM, RES_ADD, RES_LIST, REQ_INF, RES_INF, ERROR, OK};
 
 enum error_code {
@@ -15,4 +17,12 @@ enum ok_code {
   SUCCESSFUL_REMOVAL
 };
 
-void format_msg(char* buf, int id, int src, int dst, int payload[], int payload_size);
+struct message {
+  int id;
+  int src;
+  int dst;
+  int payload[MAX_PAYLOAD_SIZE];
+  int payload_size;
+};
+
+void format_msg(char *buf, struct message *msg);

@@ -16,37 +16,63 @@ void tearDown(void)
 {
 }
 
-void test_formatMsg_should_withSinglePayloadId_concatIdsInBuffer(void) {
-  int id = 1;
-  int src = 2;
-  int dst = 3;
-  int payload_size = 1;
-  int payload[1] = {4};
+void test_formatMsg_should_withSinglePayloadId_successformatBuffer(void) {
+  struct message *msg = malloc(sizeof(*msg));
 
-  format_msg(buf, id, src, dst, payload, payload_size);
+  msg->id = 1;
+  msg->src = 2;
+  msg->dst = 3;
+  
+  msg->payload_size = 1;
+  
+  msg->payload[0] = 4;
+
+  format_msg(buf, msg);
 
   const char* expected = "01020304\n";
 
   TEST_ASSERT_EQUAL_STRING(expected, buf);
 }
 
-void test_formatMsg_with_manyPayloadIds_should_concatAllInBuffer(void) {
-  int id = 1;
-  int src = 2;
-  int dst = 3;
-  int payload_size = 3;
-  int payload[3] = {4, 5, 6};
+void test_formatMsg_with_manyPayloadIds_should_successFormatBuffer(void) {
+  struct message *msg = malloc(sizeof(*msg));
 
-  format_msg(buf, id, src, dst, payload, payload_size);
+  msg->id = 1;
+  msg->src = 2;
+  msg->dst = 3;
+
+  msg->payload_size = 3;
+
+  msg->payload[0] = 4;
+  msg->payload[1] = 5;
+  msg->payload[2] = 6;
+
+  format_msg(buf, msg);
   
   const char* expected = "010203040506\n";
 
   TEST_ASSERT_EQUAL_STRING(expected, buf);
 }
 
+void test_formatMsg_with_emptyPayload_should_successFormatBuffer(void) {
+  struct message *msg = malloc(sizeof(*msg));
+
+  msg->id = 1;
+  msg->src = 2;
+  msg->dst = 3;
+  msg->payload_size = 0;
+
+  format_msg(buf, msg);
+  
+  const char* expected = "010203\n";
+
+  TEST_ASSERT_EQUAL_STRING(expected, buf);
+}
+
 int main(void) {
   UNITY_BEGIN();
-  RUN_TEST(test_formatMsg_should_withSinglePayloadId_concatIdsInBuffer);
-  RUN_TEST(test_formatMsg_with_manyPayloadIds_should_concatAllInBuffer);
+  RUN_TEST(test_formatMsg_should_withSinglePayloadId_successformatBuffer);
+  RUN_TEST(test_formatMsg_with_manyPayloadIds_should_successFormatBuffer);
+  RUN_TEST(test_formatMsg_with_emptyPayload_should_successFormatBuffer);
   return UNITY_END();
 }
