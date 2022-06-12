@@ -1,8 +1,11 @@
 #pragma once
 
+#include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #define MAX_PAYLOAD_SIZE 15
+#define ID_BYTE_SIZE 2
 
 enum msg_id {REQ_ADD, REQ_REM, RES_ADD, RES_LIST, REQ_INF, RES_INF, ERROR, OK};
 
@@ -26,3 +29,5 @@ struct message {
 };
 
 void encode_msg(char *buf, struct message *msg);
+
+void decode_msg(char *buf, struct message *msg);
