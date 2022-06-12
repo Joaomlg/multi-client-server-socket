@@ -22,7 +22,7 @@ void tearDown(void)
 
 #pragma region encode_msg_tests
 
-void test_formatMsg_should_withSinglePayloadId_successformatBuffer(void) {
+void test_encode_msg_with_single_id_in_payload_should_success_format_buffer(void) {
   struct message *msg = malloc(sizeof(*msg));
 
   msg->id = 1;
@@ -40,7 +40,7 @@ void test_formatMsg_should_withSinglePayloadId_successformatBuffer(void) {
   TEST_ASSERT_EQUAL_STRING(expected, buf);
 }
 
-void test_formatMsg_with_manyPayloadIds_should_successFormatBuffer(void) {
+void test_encode_msg_with_many_ids_in_payload_should_success_format_buffer(void) {
   struct message *msg = malloc(sizeof(*msg));
 
   msg->id = 1;
@@ -60,7 +60,7 @@ void test_formatMsg_with_manyPayloadIds_should_successFormatBuffer(void) {
   TEST_ASSERT_EQUAL_STRING(expected, buf);
 }
 
-void test_formatMsg_with_emptyPayload_should_successFormatBuffer(void) {
+void test_encode_msg_with_empty_payload_should_success_format_buffer(void) {
   struct message *msg = malloc(sizeof(*msg));
 
   msg->id = 1;
@@ -142,9 +142,9 @@ void test_decode_msg_with_many_ids_in_payload_should_success_decode_buffer(void)
 int main(void) {
   UNITY_BEGIN();
 
-  RUN_TEST(test_formatMsg_should_withSinglePayloadId_successformatBuffer);
-  RUN_TEST(test_formatMsg_with_manyPayloadIds_should_successFormatBuffer);
-  RUN_TEST(test_formatMsg_with_emptyPayload_should_successFormatBuffer);
+  RUN_TEST(test_encode_msg_with_single_id_in_payload_should_success_format_buffer);
+  RUN_TEST(test_encode_msg_with_many_ids_in_payload_should_success_format_buffer);
+  RUN_TEST(test_encode_msg_with_empty_payload_should_success_format_buffer);
   
   RUN_TEST(test_decode_msg_without_payload_should_success_decode_buffer);
   RUN_TEST(test_decode_msg_with_single_id_in_payload_should_success_decode_buffer);
