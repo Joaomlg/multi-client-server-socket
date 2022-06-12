@@ -1,6 +1,6 @@
 #include "message.h"
 
-void format_msg(char *buf, struct message *msg) {
+void encode_msg(char *buf, struct message *msg) {
   int index = sprintf(buf, "%02d%02d%02d", msg->id, msg->src, msg->dst);
   
   for (int i = 0; i < msg->payload_size; i++) {

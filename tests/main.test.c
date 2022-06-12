@@ -27,7 +27,7 @@ void test_formatMsg_should_withSinglePayloadId_successformatBuffer(void) {
   
   msg->payload[0] = 4;
 
-  format_msg(buf, msg);
+  encode_msg(buf, msg);
 
   const char* expected = "01020304\n";
 
@@ -47,7 +47,7 @@ void test_formatMsg_with_manyPayloadIds_should_successFormatBuffer(void) {
   msg->payload[1] = 5;
   msg->payload[2] = 6;
 
-  format_msg(buf, msg);
+  encode_msg(buf, msg);
   
   const char* expected = "010203040506\n";
 
@@ -62,7 +62,7 @@ void test_formatMsg_with_emptyPayload_should_successFormatBuffer(void) {
   msg->dst = 3;
   msg->payload_size = 0;
 
-  format_msg(buf, msg);
+  encode_msg(buf, msg);
   
   const char* expected = "010203\n";
 

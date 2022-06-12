@@ -25,4 +25,4 @@ struct message {
   int payload_size;
 };
 
-void format_msg(char *buf, struct message *msg);
+void encode_msg(char *buf, struct message *msg);
