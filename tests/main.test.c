@@ -2,8 +2,8 @@
 #include <string.h>
 
 #include "./unity/src/unity.h"
-#include "../message.h"
-#include "../common.h"
+#include "../src/message.h"
+#include "../src/common.h"
 
 char buf[BUFSZ];
 
