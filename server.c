@@ -35,31 +35,28 @@ void * client_thread(void *data) {
     addrtostr(caddr, caddrstr, BUFSZ);
     printf("[log] connection from %s\n", caddrstr);
 
-    char recv_buf[BUFSZ];
-    char send_buf[BUFSZ];
+    char buf[BUFSZ];
 
     while (1) {
-        memset(recv_buf, 0, BUFSZ);
-        size_t count = recv(cdata->csock, recv_buf, BUFSZ - 1, 0);
+        memset(buf, 0, BUFSZ);
+        size_t count = recv(cdata->csock, buf, BUFSZ - 1, 0);
 
         if (count == 0) {
             printf("[log] connection closed from %s\n", caddrstr);
             break;
         }
 
-        if (strcmp(recv_buf, "kill\n") == 0) {
+        if (strcmp(buf, "kill\n") == 0) {
             printf("[log] server killed\n");
             exit(EXIT_SUCCESS);
         }
 
-        printf("[msg] %s, %d bytes: %s\n", caddrstr, (int)count, strtok(recv_buf, "\n"));
+        printf("[msg] %s, %d bytes: %s\n", caddrstr, (int)count, strtok(buf, "\n"));
 
-        strcpy(send_buf, "");
+        memset(buf, 0, BUFSZ);
 
-        sprintf(send_buf, "Hello World!\n");
-
-        count = send(cdata->csock, strtok(send_buf, "\0"), strlen(send_buf), 0);
-        if (count != strlen(send_buf)) {
+        count = send(cdata->csock, strtok(buf, "\0"), strlen(buf), 0);
+        if (count != strlen(buf)) {
             logexit("send");
         }
     }
