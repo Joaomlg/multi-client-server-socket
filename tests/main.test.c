@@ -5,6 +5,8 @@
 #include "../src/message.h"
 #include "../src/common.h"
 
+#pragma region TestSetup
+
 char buf[BUFSZ];
 
 void setUp(void)
@@ -15,6 +17,10 @@ void setUp(void)
 void tearDown(void)
 {
 }
+
+#pragma endregion
+
+#pragma region encode_msg_tests
 
 void test_formatMsg_should_withSinglePayloadId_successformatBuffer(void) {
   struct message *msg = malloc(sizeof(*msg));
@@ -68,6 +74,8 @@ void test_formatMsg_with_emptyPayload_should_successFormatBuffer(void) {
 
   TEST_ASSERT_EQUAL_STRING(expected, buf);
 }
+
+#pragma endregion
 
 int main(void) {
   UNITY_BEGIN();
