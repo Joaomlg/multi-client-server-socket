@@ -11,5 +11,5 @@ debug: all
 	gcc -Wall -g src/server.c bin/common.o -lpthread -o server
 
 test: all
-	gcc tests/main.test.c tests/unity/src/unity.c bin/message.o bin/common.o -o tests/bin/tests
+	gcc tests/tests.c tests/unity/src/unity.c bin/message.o bin/common.o -o tests/bin/tests
 	./tests/bin/tests
