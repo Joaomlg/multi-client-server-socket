@@ -44,3 +44,5 @@ void build_req_add_msg(struct message *msg);
 void build_res_add_msg(struct message *msg, int eqp_id);
 
 void build_res_list_msg(struct message *msg, int eqp_id[], int size);
+
+void build_req_rem_msg(struct message *msg, int src);

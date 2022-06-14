@@ -102,3 +102,10 @@ void build_res_list_msg(struct message *msg, int eqp_id[], int size) {
     msg->payload[i] = eqp_id[i];
   }
 }
+
+void build_req_rem_msg(struct message *msg, int src) {
+  msg->id = REQ_REM;
+  msg->src = src;
+  msg->dst = 0;
+  msg->payload_size = 0;
+}
