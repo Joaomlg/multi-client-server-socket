@@ -1,5 +1,3 @@
-#include "common.h"
-
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,7 +7,8 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 
-#define MAX_CLIENTS 15
+#include "common.h"
+#include "message.h"
 
 void usage(int argc, char **argv) {
     printf("usage: %s <v4|v6> <server port>\n", argv[0]);
@@ -26,6 +25,54 @@ struct client_data {
 struct client_data *clients[MAX_CLIENTS];
 int clients_count = 0;
 int next_client_id = 1;
+
+void unicast(struct client_data *cdata, char *buf) {
+    size_t count = send(cdata->csock, strtok(buf, "\0"), strlen(buf), 0);
+    if (count != strlen(buf)) {
+        logexit("send");
+    }
+}
+
+void broadcast(char *buf) {
+    for (int i=0; i<clients_count; i++) {
+        unicast(clients[i], buf);
+    }
+}
+
+void process_client_message(struct client_data *cdata, struct message *recv_msg) {
+    char buf[BUFSZ];
+    struct message *msg = malloc(sizeof(*msg));
+
+    switch (recv_msg->id) {
+        case REQ_ADD:
+            if (clients_count == MAX_CLIENTS) {
+                build_error_msg(msg, EQP_LIMIT_EXCEEDED, 0);
+                encode_msg(buf, msg);
+                unicast(cdata, buf);
+            }
+
+        cdata->id = next_client_id++;
+        
+        build_res_add_msg(msg, cdata->id);
+        encode_msg(buf, msg);
+        unicast(cdata, buf);
+        broadcast(buf);
+
+        int clients_id[clients_count];
+        for (int i=0; i<clients_count; i++) {
+            clients_id[i] = clients[i]->id;
+        }
+
+        build_res_list_msg(msg, clients_id, clients_count);
+        encode_msg(buf, msg);
+        unicast(cdata, buf);
+
+        clients[clients_count++] = cdata;
+        printf("[log] Equipment %i added\n", cdata->id);
+
+        break;
+    }
+}
 
 void * client_thread(void *data) {
     struct client_data *cdata = (struct client_data *)data;
@@ -53,12 +100,10 @@ void * client_thread(void *data) {
 
         printf("[msg] %s, %d bytes: %s\n", caddrstr, (int)count, strtok(buf, "\n"));
 
-        memset(buf, 0, BUFSZ);
+        struct message *msg = malloc(sizeof(*msg));
+        decode_msg(buf, msg);
 
-        count = send(cdata->csock, strtok(buf, "\0"), strlen(buf), 0);
-        if (count != strlen(buf)) {
-            logexit("send");
-        }
+        process_client_message(cdata, msg);
     }
 
     close(cdata->csock);
@@ -96,7 +141,6 @@ int main(int argc, char **argv) {
     }
 
     char buf[BUFSZ];
-    size_t count;
 
     addrtostr(addr, buf, BUFSZ);
     printf("bound to %s, waiting connections\n", buf);
@@ -117,30 +161,11 @@ int main(int argc, char **argv) {
             logexit("malloc");
         }
 
-        cdata->id = next_client_id++;
         cdata->csock = csock;
         memcpy(&(cdata->storage), &cstorage, sizeof(cstorage));
 
         pthread_t tid;
         pthread_create(&tid, NULL, client_thread, cdata);
-
-        printf("[log] Equipment %i added\n", cdata->id);
-
-        sprintf(buf, "New ID: %i\n", cdata->id);
-        count = send(cdata->csock, strtok(buf, "\0"), strlen(buf), 0);
-        if (count != strlen(buf)) {
-            logexit("send");
-        }
-
-        for (int i=0; i<clients_count; i++) {
-            sprintf(buf, "Equipment %i added\n", cdata->id);
-            count = send(clients[i]->csock, strtok(buf, "\0"), strlen(buf), 0);
-            if (count != strlen(buf)) {
-                logexit("send");
-            }
-        }
-
-        clients[clients_count++] = cdata;
     }
 
     exit(EXIT_SUCCESS);

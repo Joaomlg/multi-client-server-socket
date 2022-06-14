@@ -11,7 +11,7 @@ void encode_msg(char *buf, struct message *msg) {
 }
 
 void decode_msg(char *buf, struct message *msg) {
-  char tmp[ID_BYTE_SIZE * MAX_PAYLOAD_SIZE];
+  char tmp[ID_BYTE_SIZE * MAX_CLIENTS];
 
   int id_offset = 0;
   strncpy(tmp, buf + id_offset, ID_BYTE_SIZE);
@@ -66,5 +66,39 @@ void get_success_msg_str(char *buf, struct message *msg) {
       break;
     default:
       sprintf(buf, "Unknown success code: %d", success_code);
+  }
+}
+
+void build_error_msg(struct message *msg, int code, int dst) {
+  msg->id = ERROR;
+  msg->src = 0;
+  msg->dst = dst;
+  msg->payload_size = 1;
+  msg->payload[0] = code;
+}
+
+void build_req_add_msg(struct message *msg) {
+  msg->id = REQ_ADD;
+  msg->src = 0;
+  msg->dst = 0;
+  msg->payload_size = 0;
+}
+
+void build_res_add_msg(struct message *msg, int eqp_id) {
+  msg->id = RES_ADD;
+  msg->src = 0;
+  msg->dst = 0;
+  msg->payload_size = 1;
+  msg->payload[0] = eqp_id;
+}
+
+void build_res_list_msg(struct message *msg, int eqp_id[], int size) {
+  msg->id = RES_LIST;
+  msg->src = 0;
+  msg->dst = 0;
+  msg->payload_size = size;
+  
+  for (int i=0; i<size; i++) {
+    msg->payload[i] = eqp_id[i];
   }
 }
