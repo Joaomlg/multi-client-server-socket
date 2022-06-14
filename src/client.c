@@ -24,6 +24,10 @@ struct thread_data {
 int clients[MAX_CLIENTS - 1];
 int clients_count = 0;
 
+int id() {
+	return clients[0];
+}
+
 void server_unicast(int csock, char *buf) {
 	size_t count = send(csock, strtok(buf, "\0"), strlen(buf), 0);
 	if (count != strlen(buf)) {
@@ -141,10 +145,29 @@ int main(int argc, char **argv) {
 
 	while (1) {
 		memset(buf, 0, BUFSZ);
-		printf("> ");
 		fgets(buf, BUFSZ-1, stdin);
+
+		const static char *close_connection_cmd = "close connection";
+		if (strcmp(buf, close_connection_cmd) == 0) {
+			build_req_rem_msg(msg, id());
+			server_unicast(csock, buf);
+			continue;
+		}
 		
-		server_unicast(csock, buf);
+		const static char *list_equipment_cmd = "list equipment\n";
+		if (strcmp(buf, list_equipment_cmd) == 0) {
+			for (int i=1; i<clients_count; i++) {
+				printf("%02d", clients[i]);
+				printf(i == clients_count - 1 ? "\n" : " ");
+			}
+			continue;
+		}
+		
+		const static char *request_information_cmd = "request information from ";
+		if (strncmp(buf, request_information_cmd, strlen(request_information_cmd)) == 0) {
+			
+			continue;
+		}
 	}
 
 	close(csock);
