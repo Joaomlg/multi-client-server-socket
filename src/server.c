@@ -51,26 +51,28 @@ void process_client_message(struct client_data *cdata, struct message *recv_msg)
                 unicast(cdata, buf);
             }
 
-        cdata->id = next_client_id++;
-        
-        build_res_add_msg(msg, cdata->id);
-        encode_msg(buf, msg);
-        unicast(cdata, buf);
-        broadcast(buf);
+            cdata->id = next_client_id++;
+            
+            build_res_add_msg(msg, cdata->id);
+            encode_msg(buf, msg);
+            unicast(cdata, buf);
+            broadcast(buf);
 
-        int clients_id[clients_count];
-        for (int i=0; i<clients_count; i++) {
-            clients_id[i] = clients[i]->id;
-        }
+            if (clients_count > 0) {
+                int clients_id[clients_count];
+                for (int i=0; i<clients_count; i++) {
+                    clients_id[i] = clients[i]->id;
+                }
 
-        build_res_list_msg(msg, clients_id, clients_count);
-        encode_msg(buf, msg);
-        unicast(cdata, buf);
+                build_res_list_msg(msg, clients_id, clients_count);
+                encode_msg(buf, msg);
+                unicast(cdata, buf);
+            }
 
-        clients[clients_count++] = cdata;
-        printf("[log] Equipment %i added\n", cdata->id);
+            clients[clients_count++] = cdata;
+            printf("[log] Equipment %i added\n", cdata->id);
 
-        break;
+            break;
     }
 }
 
