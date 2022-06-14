@@ -61,32 +61,38 @@ void * sock_recv_thread(void *data) {
 	char buf[BUFSZ];
 
 	while (1) {
-		int count = read_sock(cdata->csock, buf);
-		printf("[msg] Received %d bytes from server: %s\n", count, strtok(buf, "\n"));
+		read_sock(cdata->csock, buf);
 
-		decode_msg(buf, msg);
+		char *ptr = strtok(buf, MSG_END);
+		while (ptr != NULL) {
+			printf("[msg] Received %d bytes from server: %s\n", (int) strlen(ptr), ptr);
 
-		switch (msg->id) {
-			case RES_ADD:
-				clients[clients_count++] = msg->payload[0];
-				printf(clients_count == 1 ? "[log] New ID: %02d\n" : "[log] Equipment %02d added\n", msg->payload[0]);
-				break;
+			decode_msg(ptr, msg);
 
-			case RES_LIST:
-				for (int i = 0; i < msg->payload_size; i++) {
-					clients[clients_count++] = msg->payload[i];
-					printf("[log] Equipment %02d added\n", msg->payload[i]);
-				}
-				break;
-			
-			case ERROR:
-				get_error_msg_str(buf, msg);
-				puts(buf);
-				exit(EXIT_FAILURE);
-				break;
+			switch (msg->id) {
+				case RES_ADD:
+					clients[clients_count++] = msg->payload[0];
+					printf(clients_count == 1 ? "[log] New ID: %02d\n" : "[log] Equipment %02d added\n", msg->payload[0]);
+					break;
 
-			default:
-				printf("[log] Unexpected message from server");
+				case RES_LIST:
+					for (int i = 0; i < msg->payload_size; i++) {
+						clients[clients_count++] = msg->payload[i];
+						printf("[log] Equipment %02d added\n", msg->payload[i]);
+					}
+					break;
+				
+				case ERROR:
+					get_error_msg_str(buf, msg);
+					puts(buf);
+					exit(EXIT_FAILURE);
+					break;
+
+				default:
+					printf("[log] Unexpected message from server\n");
+			}
+
+			ptr = strtok(NULL, MSG_END);
 		}
 	}
 }
