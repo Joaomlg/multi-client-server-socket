@@ -35,7 +35,7 @@ void decode_msg(char *buf, struct message *msg);
 
 void get_error_msg_str(char *buf, struct message *msg);
 
-void get_success_msg_str(char *buf, struct message *msg);
+void get_ok_msg_str(char *buf, struct message *msg);
 
 void build_error_msg(struct message *msg, int code, int dst);
 
@@ -46,3 +46,5 @@ void build_res_add_msg(struct message *msg, int eqp_id);
 void build_res_list_msg(struct message *msg, int eqp_id[], int size);
 
 void build_req_rem_msg(struct message *msg, int src);
+
+void build_ok_msg(struct message *msg, int code, int dst);

@@ -76,7 +76,10 @@ void * sock_recv_thread(void *data) {
 			switch (msg->id) {
 				case RES_ADD:
 					clients[clients_count++] = msg->payload[0];
-					printf(clients_count == 1 ? "[log] New ID: %02d\n" : "[log] Equipment %02d added\n", msg->payload[0]);
+					
+					const char *str = (clients_count == 1) ? "[log] New ID: %02d\n" : "[log] Equipment %02d added\n";
+					printf(str, msg->payload[0]);
+					
 					break;
 
 				case RES_LIST:
@@ -84,12 +87,44 @@ void * sock_recv_thread(void *data) {
 						clients[clients_count++] = msg->payload[i];
 						printf("[log] Equipment %02d added\n", msg->payload[i]);
 					}
+
+					break;
+				
+				case REQ_REM:
+					for (int i=0; i<clients_count; i++) {
+						if (clients[i] == msg->src) {
+							for (int j=i; j<clients_count-1; j++) {
+								clients[j] = clients[j+1];
+							}
+
+							printf("Equipment %02d removed\n", msg->src);
+
+							clients_count--;
+							
+							break;
+						}
+					}
+
+					break;
+				
+				case OK:
+					get_ok_msg_str(buf, msg);
+					printf("[log] %s\n", buf);
+
+					if (msg->payload[0] == SUCCESSFUL_REMOVAL) {
+						close(cdata->csock);
+						exit(EXIT_SUCCESS);
+					}
+
 					break;
 				
 				case ERROR:
 					get_error_msg_str(buf, msg);
-					puts(buf);
+					printf("[log] %s\n", buf);
+
+					close(cdata->csock);
 					exit(EXIT_FAILURE);
+
 					break;
 
 				default:
@@ -147,9 +182,10 @@ int main(int argc, char **argv) {
 		memset(buf, 0, BUFSZ);
 		fgets(buf, BUFSZ-1, stdin);
 
-		const static char *close_connection_cmd = "close connection";
+		const static char *close_connection_cmd = "close connection\n";
 		if (strcmp(buf, close_connection_cmd) == 0) {
 			build_req_rem_msg(msg, id());
+			encode_msg(buf, msg);
 			server_unicast(csock, buf);
 			continue;
 		}

@@ -57,15 +57,15 @@ void get_error_msg_str(char *buf, struct message *msg) {
   }
 }
 
-void get_success_msg_str(char *buf, struct message *msg) {
-  int success_code = msg->payload[0];
+void get_ok_msg_str(char *buf, struct message *msg) {
+  int ok_code = msg->payload[0];
 
-  switch (success_code) {
+  switch (ok_code) {
     case SUCCESSFUL_REMOVAL:
       sprintf(buf, "Successful removal");
       break;
     default:
-      sprintf(buf, "Unknown success code: %d", success_code);
+      sprintf(buf, "Unknown success code: %d", ok_code);
   }
 }
 
@@ -108,4 +108,12 @@ void build_req_rem_msg(struct message *msg, int src) {
   msg->src = src;
   msg->dst = 0;
   msg->payload_size = 0;
+}
+
+void build_ok_msg(struct message *msg, int code, int dst) {
+  msg->id = OK;
+  msg->src = 0;
+  msg->dst = dst;
+  msg->payload_size = 1;
+  msg->payload[0] = code;
 }

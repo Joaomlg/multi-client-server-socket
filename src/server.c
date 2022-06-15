@@ -26,6 +26,27 @@ struct client_data *clients[MAX_CLIENTS];
 int clients_count = 0;
 int next_client_id = 1;
 
+int client_exists(int id) {
+    for (int i=0; i<clients_count; i++) {
+        if (clients[i]->id == id) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+void remove_client(int id) {
+    for (int i=0; i<clients_count; i++) {
+        if (clients[i]->id == id) {
+            for (int j=i; j<clients_count-1; j++) {
+                clients[j] = clients[j+1];
+            }
+            clients_count--;
+            break;
+        }
+    }
+}
+
 void unicast(struct client_data *cdata, char *buf) {
     size_t count = send(cdata->csock, strtok(buf, "\0"), strlen(buf), 0);
     if (count != strlen(buf)) {
@@ -73,6 +94,25 @@ void process_client_message(struct client_data *cdata, struct message *recv_msg)
             printf("[log] Equipment %i added\n", cdata->id);
 
             break;
+        
+        case REQ_REM:
+            if (!client_exists(recv_msg->src)) {
+                build_error_msg(msg, EQP_NOT_FOUND, recv_msg->src);
+                encode_msg(buf, msg);
+                unicast(cdata, buf);
+                return;
+            }
+
+            remove_client(recv_msg->src);
+
+            printf("[log] Equipment %02d removed\n", recv_msg->src);
+
+            encode_msg(buf, recv_msg);
+            broadcast(buf);
+
+            build_ok_msg(msg, SUCCESSFUL_REMOVAL, recv_msg->src);
+            encode_msg(buf, msg);
+            unicast(cdata, buf);
     }
 }
 
