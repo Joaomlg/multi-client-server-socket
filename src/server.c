@@ -182,11 +182,6 @@ void * client_thread(void *data) {
             break;
         }
 
-        if (strcmp(buf, "kill\n") == 0) {
-            printf("[log] server killed\n");
-            exit(EXIT_SUCCESS);
-        }
-
         printf("[msg] %s, %d bytes: %s\n", caddrstr, (int)count, strtok(buf, "\n"));
 
         struct message *msg = malloc(sizeof(*msg));
