@@ -48,3 +48,9 @@ void build_res_list_msg(struct message *msg, int eqp_id[], int size);
 void build_req_rem_msg(struct message *msg, int src);
 
 void build_ok_msg(struct message *msg, int code, int dst);
+
+void build_req_inf_msg(struct message *msg, int src, int dst);
+
+void build_res_inf_msg(struct message *msg, int src, int dst, float data);
+
+float decode_msg_data(struct message *msg);

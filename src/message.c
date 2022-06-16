@@ -117,3 +117,23 @@ void build_ok_msg(struct message *msg, int code, int dst) {
   msg->payload_size = 1;
   msg->payload[0] = code;
 }
+
+void build_req_inf_msg(struct message *msg, int src, int dst) {
+  msg->id = REQ_INF;
+  msg->src = src;
+  msg->dst = dst;
+  msg->payload_size = 0;
+}
+
+void build_res_inf_msg(struct message *msg, int src, int dst, float data) {
+  msg->id = RES_INF;
+  msg->src = src;
+  msg->dst = dst;
+  msg->payload_size = 2;
+  msg->payload[0] = (int) data;
+  msg->payload[1] = (int) ((data - (int) data) * 100);
+}
+
+float decode_msg_data(struct message *msg) {
+  return msg->payload[0] + (float) msg->payload[1] / 100;
+}

@@ -54,6 +54,15 @@ void unicast(struct client_data *cdata, char *buf) {
     }
 }
 
+void unicast_by_id(int id, char *buf) {
+    for (int i=0; i<clients_count; i++) {
+        if (clients[i]->id == id) {
+            unicast(clients[i], buf);
+            return;
+        }
+    }
+}
+
 void broadcast(char *buf) {
     for (int i=0; i<clients_count; i++) {
         unicast(clients[i], buf);
@@ -70,6 +79,7 @@ void process_client_message(struct client_data *cdata, struct message *recv_msg)
                 build_error_msg(msg, EQP_LIMIT_EXCEEDED, 0);
                 encode_msg(buf, msg);
                 unicast(cdata, buf);
+                break;
             }
 
             cdata->id = next_client_id++;
@@ -100,7 +110,7 @@ void process_client_message(struct client_data *cdata, struct message *recv_msg)
                 build_error_msg(msg, EQP_NOT_FOUND, recv_msg->src);
                 encode_msg(buf, msg);
                 unicast(cdata, buf);
-                return;
+                break;
             }
 
             remove_client(recv_msg->src);
@@ -113,6 +123,33 @@ void process_client_message(struct client_data *cdata, struct message *recv_msg)
             build_ok_msg(msg, SUCCESSFUL_REMOVAL, recv_msg->src);
             encode_msg(buf, msg);
             unicast(cdata, buf);
+
+            break;
+        
+        case REQ_INF:
+        case RES_INF:
+            if (!client_exists(recv_msg->src)) {
+                printf("[log] Equipment %02d not found\n", recv_msg->src);
+                build_error_msg(msg, SRC_EQP_NOT_FOUND, recv_msg->src);
+                encode_msg(buf, msg);
+                unicast(cdata, buf);
+                break;
+            }
+
+            if (!client_exists(recv_msg->dst)) {
+                printf("[log] Equipment %02d not found\n", recv_msg->dst);
+                build_error_msg(msg, TGT_EQP_NOT_FOUND, recv_msg->src);
+                encode_msg(buf, msg);
+                unicast(cdata, buf);
+                break;
+            }
+
+            encode_msg(buf, recv_msg);
+            unicast_by_id(recv_msg->dst, buf);
+
+            break;
+        default:
+            printf("[log] Invalid server msg\n");
     }
 }
 

@@ -3,6 +3,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <time.h>
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -62,12 +63,13 @@ void * sock_recv_thread(void *data) {
 	struct thread_data *cdata = (struct thread_data *)data;
 	
 	struct message *msg = malloc(sizeof(*msg));
+	char recv_buf[BUFSZ];
 	char buf[BUFSZ];
 
 	while (1) {
-		read_sock(cdata->csock, buf);
+		read_sock(cdata->csock, recv_buf);
 
-		char *ptr = strtok(buf, MSG_END);
+		char *ptr = strtok(recv_buf, MSG_END);
 		while (ptr != NULL) {
 			printf("[msg] Received %d bytes from server: %s\n", (int) strlen(ptr), ptr);
 
@@ -107,6 +109,22 @@ void * sock_recv_thread(void *data) {
 
 					break;
 				
+				case REQ_INF:
+					printf("[log] Requested information\n");
+
+					float data = (float) (rand() % 999) / 100;
+
+					build_res_inf_msg(msg, id(), msg->src, data);
+					encode_msg(buf, msg);
+
+					server_unicast(cdata->csock, buf);
+
+					break;
+				
+				case RES_INF:
+					printf("[log] Value from %02d: %.2f\n", msg->src, decode_msg_data(msg));
+					break;
+				
 				case OK:
 					get_ok_msg_str(buf, msg);
 					printf("[log] %s\n", buf);
@@ -122,8 +140,10 @@ void * sock_recv_thread(void *data) {
 					get_error_msg_str(buf, msg);
 					printf("[log] %s\n", buf);
 
-					close(cdata->csock);
-					exit(EXIT_FAILURE);
+					if (msg->payload[0] == EQP_LIMIT_EXCEEDED) {
+						close(cdata->csock);
+						exit(EXIT_FAILURE);
+					}
 
 					break;
 
@@ -140,6 +160,8 @@ int main(int argc, char **argv) {
 	if (argc < 3) {
 		usage(argc, argv);
 	}
+
+	srand(time(0));
 
 	struct sockaddr_storage storage;
 	if (0 != addrparse(argv[1], argv[2], &storage)) {
@@ -200,8 +222,15 @@ int main(int argc, char **argv) {
 		}
 		
 		const static char *request_information_cmd = "request information from ";
-		if (strncmp(buf, request_information_cmd, strlen(request_information_cmd)) == 0) {
+		const int cmd_size = strlen(request_information_cmd);
+		if (strncmp(buf, request_information_cmd, cmd_size) == 0) {
+			char dst_id[ID_BYTE_SIZE + 1];
+			strncpy(dst_id, buf + cmd_size, ID_BYTE_SIZE);
 			
+			build_req_inf_msg(msg, id(), atoi(dst_id));
+			encode_msg(buf, msg);
+			server_unicast(csock, buf);
+
 			continue;
 		}
 
