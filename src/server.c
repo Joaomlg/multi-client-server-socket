@@ -170,14 +170,16 @@ void * client_thread(void *data) {
         if (count == 0) {
             printf("[log] connection closed from %s\n", caddrstr);
 
-            remove_client(cdata->id);
-            
-            printf("[log] Equipment %02d removed\n", cdata->id);
-            
-            struct message *msg = malloc(sizeof(*msg));
-            build_req_rem_msg(msg, cdata->id);
-            encode_msg(buf, msg);
-            broadcast(buf);
+            if (client_exists(cdata->id)) {
+                remove_client(cdata->id);
+                
+                printf("[log] Equipment %02d removed\n", cdata->id);
+                
+                struct message *msg = malloc(sizeof(*msg));
+                build_req_rem_msg(msg, cdata->id);
+                encode_msg(buf, msg);
+                broadcast(buf);
+            }
 
             break;
         }
