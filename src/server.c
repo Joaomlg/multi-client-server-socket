@@ -101,7 +101,7 @@ void process_client_message(struct client_data *cdata, struct message *recv_msg)
             }
 
             clients[clients_count++] = cdata;
-            printf("[log] Equipment %i added\n", cdata->id);
+            printf("[log] Equipment %02d added\n", cdata->id);
 
             break;
         
