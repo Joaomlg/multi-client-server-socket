@@ -204,6 +204,8 @@ int main(int argc, char **argv) {
 			
 			continue;
 		}
+
+		printf("[log] Invalid client command\n");
 	}
 
 	close(csock);
