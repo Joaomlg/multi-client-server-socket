@@ -99,7 +99,7 @@ void * sock_recv_thread(void *data) {
 								clients[j] = clients[j+1];
 							}
 
-							printf("Equipment %02d removed\n", msg->src);
+							printf("[log] Equipment %02d removed\n", msg->src);
 
 							clients_count--;
 							
