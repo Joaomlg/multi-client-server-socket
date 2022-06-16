@@ -8,7 +8,7 @@
 #include <sys/types.h>
 
 #include "common.h"
-#include "message.h"
+#include "protocol.h"
 
 void usage(int argc, char **argv) {
     printf("usage: %s <v4|v6> <server port>\n", argv[0]);

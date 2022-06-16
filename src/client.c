@@ -10,7 +10,7 @@
 #include <arpa/inet.h>
 
 #include "common.h"
-#include "message.h"
+#include "protocol.h"
 
 void usage(int argc, char **argv) {
 	printf("usage: %s <server IP> <server port>\n", argv[0]);

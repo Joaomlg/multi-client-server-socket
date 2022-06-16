@@ -1,4 +1,4 @@
-#include "message.h"
+#include "protocol.h"
 
 void encode_msg(char *buf, struct message *msg) {
   int index = sprintf(buf, "%02d%02d%02d", msg->id, msg->src, msg->dst);
